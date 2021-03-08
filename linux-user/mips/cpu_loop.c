@@ -150,6 +150,7 @@ done_syscall:
                    Avoid clobbering register state.  */
                 break;
             }
+#if !defined(TARGET_ABI_MIPSP32)
             if ((abi_ulong)ret >= (abi_ulong)-1133) {
                 env->active_tc.gpr[7] = 1; /* error flag */
                 ret = -ret;
@@ -157,6 +158,9 @@ done_syscall:
                 env->active_tc.gpr[7] = 0; /* error flag */
             }
             env->active_tc.gpr[2] = ret;
+#else
+            env->active_tc.gpr[4] = ret;
+#endif
             break;
         case EXCP_CpU:
         case EXCP_RI:
