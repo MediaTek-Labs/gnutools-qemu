@@ -1,5 +1,6 @@
 #include "qemu/osdep.h"
 
+#include <linux/falloc.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/sem.h>
