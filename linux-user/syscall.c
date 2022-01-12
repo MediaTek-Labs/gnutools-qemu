@@ -11203,7 +11203,32 @@ static abi_long do_syscall1(void *cpu_env, int num, abi_long arg1,
                 }
             }
 #endif
-            ret = get_errno(fstatat(dirfd, path(p), &st, flags));
+
+#ifdef AT_EMPTY_PATH
+            if ((flags & AT_EMPTY_PATH) &&
+#else
+            if (
+#endif
+               ((p == NULL) || (*((char *)p) == 0))) {
+                /* By file descriptor */
+                ret = get_errno(fstat(dirfd, &st));
+                unlock_user(p, arg2, 0);
+            } else if (*((char *)p) == '/') {
+                /* An absolute pathname */
+                ret = get_errno(stat(path(p), &st));
+                unlock_user(p, arg2, 0);
+            } else {
+                if (dirfd == AT_FDCWD) {
+                    /* A relative pathname */
+                    ret = get_errno(stat(path(p), &st));
+                    unlock_user(p, arg2, 0);
+                } else {
+                    /* A directory-relative pathname */
+                    ret = get_errno(fstatat(dirfd, path(p), &st, flags));
+                    unlock_user(p, arg2, 0);
+                }
+            }
+
             unlock_user(p, arg2, 0);
 
             if (!is_error(ret)) {
