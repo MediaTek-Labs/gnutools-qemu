@@ -271,7 +271,8 @@ done_syscall:
                 abi_ulong trap_instr;
                 unsigned int code = 0;
 
-                if (env->hflags & MIPS_HFLAG_M16) {
+                if ((env->hflags & MIPS_HFLAG_M16)
+                    || (env->insn_flags & ISA_NANOMIPS32)) {
                     /* microMIPS mode */
                     abi_ulong instr[2];
 
@@ -295,6 +296,8 @@ done_syscall:
                     } else {
                         code = ((trap_instr >> 6) & ((1 << 10) - 1));
                     }
+                } else if (env->insn_flags & ISA_NANOMIPS32) {
+                    code = ((trap_instr >> 11) & ((1 << 5) - 1));
                 }
 
                 if (do_break(env, &info, code) != 0) {
