@@ -230,7 +230,7 @@ done_syscall:
                                 goto error;
                             }
                             trap_instr = (trap_instr << 16) | instr_lo;
-                            code = ((trap_instr >> 6) & ((1 << 20) - 1));
+                            code = ((trap_instr >> 6) & ((1 << 19) - 1));
                             /* Unfortunately, microMIPS also suffers from
                                the old assembler bug...  */
                             if (code >= (1 << 10)) {
@@ -245,6 +245,27 @@ done_syscall:
                         }
                         code = (trap_instr >> 6) & 0x3f;
                     }
+                } else if (env->insn_flags & ISA_NANOMIPS32) {
+                    ret = get_user_u16(trap_instr, env->active_tc.PC);
+                    if (ret != 0) {
+                        goto error;
+                    }
+
+                    if ((trap_instr & 0x1000) != 0) {
+                        /* 16-bit instruction */
+                        code = trap_instr & 0x7;
+                    } else {
+                        /* 32-bit instruction */
+                        abi_ulong instr_lo;
+
+                        ret = get_user_u16(instr_lo,
+                                           env->active_tc.PC + 2);
+                        if (ret != 0) {
+                            goto error;
+                        }
+                        trap_instr = (trap_instr << 16) | instr_lo;
+                        code = trap_instr & ((1 << 19) - 1);
+                    }
                 } else {
                     ret = get_user_u32(trap_instr, env->active_tc.PC);
                     if (ret != 0) {
@@ -255,7 +276,7 @@ done_syscall:
                      * below checks on 'code' are to work around an old
                      * assembly bug.
                      */
-                    code = ((trap_instr >> 6) & ((1 << 20) - 1));
+                    code = ((trap_instr >> 6) & ((1 << 19) - 1));
                     if (code >= (1 << 10)) {
                         code >>= 10;
                     }
