@@ -1181,10 +1181,7 @@ static void gen_compute_branch_nm(DisasContext *ctx, uint32_t opc,
                             ctx->base.pc_next + insn_bytes);
             ctx->hflags |= MIPS_HFLAG_B;
             break;
-        case OPC_BNE:     /* rx != rx        */
-            tcg_gen_movi_tl(cpu_gpr[31], ctx->base.pc_next + 8);
-            /* Skip the instruction in the delay slot */
-            ctx->base.pc_next += 4;
+        case OPC_BNE:     /* rx != rx, treat ast NOP */
             goto out;
         case OPC_JR:
             ctx->hflags |= MIPS_HFLAG_BR;
