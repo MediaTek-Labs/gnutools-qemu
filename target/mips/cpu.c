@@ -572,11 +572,16 @@ static void mips_cpu_class_init(ObjectClass *c, void *data)
     cc->sysemu_ops = &mips_sysemu_ops;
 #endif
     cc->disas_set_info = mips_cpu_disas_set_info;
-    cc->gdb_num_core_regs = 73;
     cc->gdb_stop_before_watchpoint = true;
 #ifdef CONFIG_TCG
     cc->tcg_ops = &mips_tcg_ops;
 #endif /* CONFIG_TCG */
+#ifdef TARGET_NANOMIPS
+    cc->gdb_core_xml_file = "nanomips-32bit-cpu.xml";
+    cc->gdb_num_core_regs = 33;
+#else
+    cc->gdb_num_core_regs = 73;
+#endif
 }
 
 static const TypeInfo mips_cpu_type_info = {

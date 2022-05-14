@@ -31,6 +31,9 @@ int mips_cpu_gdb_read_register(CPUState *cs, GByteArray *mem_buf, int n)
     if (n < 32) {
         return gdb_get_regl(mem_buf, env->active_tc.gpr[n]);
     }
+    if ((env->insn_flags & ISA_NANOMIPS32) && n == 32) {
+        return gdb_get_regl(mem_buf, env->active_tc.PC);
+    }
     if (env->CP0_Config1 & (1 << CP0C1_FP) && n >= 38 && n < 72) {
         switch (n) {
         case 70:
@@ -86,6 +89,10 @@ int mips_cpu_gdb_write_register(CPUState *cs, uint8_t *mem_buf, int n)
 
     if (n < 32) {
         env->active_tc.gpr[n] = tmp;
+        return sizeof(target_ulong);
+    }
+    if ((env->insn_flags & ISA_NANOMIPS32) && n == 32) {
+        env->active_tc.PC = tmp;
         return sizeof(target_ulong);
     }
     if (env->CP0_Config1 & (1 << CP0C1_FP) && n >= 38 && n < 72) {
