@@ -782,7 +782,6 @@ enum {
     NM_RADDU_W_QB       = 0x78,
 
     NM_BITSWAP          = 0x05,
-    NM_WSBH             = 0x3d,
 };
 
 /* PP.SR instruction pool */
