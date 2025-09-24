@@ -2177,9 +2177,6 @@ static void gen_pool32axf_4_nanomips_insn(DisasContext *ctx, uint32_t opc,
         check_nms(ctx);
         gen_cl(ctx, OPC_CLZ, ret, rs);
         break;
-    case NM_WSBH:
-        gen_bshfl(ctx, OPC_WSBH, ret, rs);
-        break;
     default:
         gen_reserved_instruction(ctx);
         break;
