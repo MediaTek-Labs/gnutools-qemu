@@ -1225,7 +1225,9 @@ static void gen_compute_branch_nm(DisasContext *ctx, uint32_t opc,
     ctx->btarget = btgt;
 
  out:
-    if (insn_bytes == 2) {
+    // Only mark as _B16 if already effectively a branch
+    // Skip this for NOPs, like: bnec rt,rt,offset
+    if (insn_bytes == 2 && (ctx->hflags & MIPS_HFLAG_BMASK_BASE != 0)) {
         ctx->hflags |= MIPS_HFLAG_B16;
     }
     tcg_temp_free(t0);
